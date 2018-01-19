@@ -93,15 +93,23 @@ func testUpload(t *testing.T, testname string, paramName string, path string, ex
 }
 
 func TestReceiveFile(t *testing.T) {
+	// generic XLSX
 	expected := `{"name":"sample.xlsx","spreadsheets":[{"name":"Sheet 1","columns":["Column0","Column1","Column2","Column3","Column4"],"rows":[["1","2","3","4","5"],["a","b","c","d","e"]]},{"name":"Sheet 2","columns":["Column0","Column1","Column2"],"rows":[["1","2","3"],["a","b","c"]]}]}` + "\n"
 	testUpload(t, "sample.xlsx", "file", "testfiles/sample.xlsx", expected, 200)
 
+	// empty XLSX
 	expected2 := `{"name":"empty.xlsx","spreadsheets":[{"name":"Sheet 1","columns":null,"rows":null}]}` + "\n"
 	testUpload(t, "empty.xlsx", "file", "testfiles/empty.xlsx", expected2, 200)
 
+	// empty CSV file
 	expected3 := `{"http_error_code":500,"http_error":"Internal Server Error","message":"Invalid XLSX file"}` + "\n"
 	testUpload(t, "wrong.csv", "file", "testfiles/wrong.csv", expected3, 500)
 
+	// not sending as `file` in the POST body (also captures sending empty body)
 	expected4 := `{"http_error_code":500,"http_error":"Internal Server Error","message":"No file upload found. Please send as param named 'file'."}` + "\n"
 	testUpload(t, "wrong param name", "upload", "testfiles/sample.xlsx", expected4, 500)
+
+	// ZIP file renamed to XLSX
+	expected5 := `{"http_error_code":500,"http_error":"Internal Server Error","message":"Invalid XLSX file"}` + "\n"
+	testUpload(t, "wrong.xslx", "file", "testfiles/wrong.xslx", expected5, 500)
 }
