@@ -85,13 +85,21 @@ func main() {
 
 	srv := &http.Server{
 		Addr: cfg.ApiHost+":"+cfg.ApiPort,
-		Handler: router,
+		Handler: addCorsHeader(router),
 		ReadTimeout: 5 * time.Second,
 		WriteTimeout: 10 * time.Second,
 	}
 
 	log.Fatal(srv.ListenAndServe())
 }
+
+func addCorsHeader(h http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Add("Access-Control-Allow-Origin", "*")
+		h.ServeHTTP(w, r)
+	})
+}
+
 
 func Welcome(writer http.ResponseWriter, request *http.Request) {
 	request.Header.Get("Content-Type")
