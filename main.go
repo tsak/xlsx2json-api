@@ -12,6 +12,7 @@ import (
 	"errors"
 	"github.com/tealeg/xlsx"
 	"mime/multipart"
+	"io/ioutil"
 )
 
 const (
@@ -82,6 +83,7 @@ func main() {
 	}
 	router.HandleFunc("/", ReceiveFile).Methods("POST").Headers("Content-Type", jsonMimeType)
 	router.HandleFunc("/", ReceiveFile).Methods("POST")
+	router.HandleFunc("/json2xlsx", ReceiveJson).Methods("POST").Headers("Content-Type", jsonMimeType)
 
 	srv := &http.Server{
 		Addr: cfg.ApiHost+":"+cfg.ApiPort,
@@ -127,6 +129,14 @@ func ReceiveFile(writer http.ResponseWriter, request *http.Request) {
 	} else {
 		handleXlsx(writer, buf.Bytes(), fileHeader)
 	}
+}
+
+func ReceiveJson(writer http.ResponseWriter, request *http.Request) {
+	body, err := ioutil.ReadAll(request.Body)
+	if err != nil {
+		handleError(writer, err)
+	}
+	handleJson(writer, body)
 }
 
 func handleJson(writer http.ResponseWriter, payload []byte) {
