@@ -1,17 +1,17 @@
 package main
 
 import (
+	"bytes"
+	"fmt"
+	log "github.com/sirupsen/logrus"
+	"io"
+	"mime/multipart"
 	"net/http"
 	"net/http/httptest"
-	"testing"
-	"os"
-	"bytes"
-	"mime/multipart"
-	"path/filepath"
-	"io"
-	log "github.com/sirupsen/logrus"
 	"net/textproto"
-	"fmt"
+	"os"
+	"path/filepath"
+	"testing"
 )
 
 func TestMain(m *testing.M) {
@@ -56,7 +56,6 @@ func newfileUploadRequest(uri string, params map[string]string, paramName, path 
 	h.Set("Content-Disposition", fmt.Sprintf(`form-data; name="%s"; filename="%s"`, paramName, filepath.Base(path)))
 	h.Set("Content-Type", contentType)
 	part, err := writer.CreatePart(h)
-
 
 	//part, err := writer.CreateFormFile(paramName, filepath.Base(path))
 	if err != nil {

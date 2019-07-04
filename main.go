@@ -1,18 +1,18 @@
 package main
 
 import (
-	"encoding/json"
-	"github.com/gorilla/mux"
-	"github.com/caarlos0/env"
-	log "github.com/sirupsen/logrus"
-	"net/http"
 	"bytes"
-	"io"
-	"time"
+	"encoding/json"
 	"errors"
+	"github.com/caarlos0/env"
+	"github.com/gorilla/mux"
+	log "github.com/sirupsen/logrus"
 	"github.com/tealeg/xlsx"
-	"mime/multipart"
+	"io"
 	"io/ioutil"
+	"mime/multipart"
+	"net/http"
+	"time"
 )
 
 const (
@@ -86,9 +86,9 @@ func main() {
 	router.HandleFunc("/json2xlsx", ReceiveJson).Methods("POST").Headers("Content-Type", jsonMimeType)
 
 	srv := &http.Server{
-		Addr: cfg.ApiHost+":"+cfg.ApiPort,
-		Handler: addCorsHeader(router),
-		ReadTimeout: 5 * time.Second,
+		Addr:         cfg.ApiHost + ":" + cfg.ApiPort,
+		Handler:      addCorsHeader(router),
+		ReadTimeout:  5 * time.Second,
 		WriteTimeout: 10 * time.Second,
 	}
 
@@ -101,7 +101,6 @@ func addCorsHeader(h http.Handler) http.Handler {
 		h.ServeHTTP(w, r)
 	})
 }
-
 
 func Welcome(writer http.ResponseWriter, request *http.Request) {
 	request.Header.Get("Content-Type")
@@ -147,7 +146,7 @@ func handleJson(writer http.ResponseWriter, payload []byte) {
 	}
 
 	log.WithFields(log.Fields{
-		"name": workbook.Name,
+		"name":       workbook.Name,
 		"num_sheets": len(workbook.Sheets),
 	}).Info("JSON -> XLSX")
 
@@ -176,7 +175,7 @@ func handleJson(writer http.ResponseWriter, payload []byte) {
 		}
 	}
 
-	writer.Header().Set("Content-Disposition", "attachment; filename=" + workbook.Name)
+	writer.Header().Set("Content-Disposition", "attachment; filename="+workbook.Name)
 	writer.Header().Add("Content-type", xlsxMimeType)
 	file.Write(writer)
 }
