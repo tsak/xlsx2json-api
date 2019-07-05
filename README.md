@@ -110,3 +110,20 @@ The format has to match the format that is returned by turning XLSX to JSON.
 ```bash
 go test && go build
 ```
+
+## Run
+
+### Local
+Build, run the following command and then open [localhost:8000](http://localhost:8000).
+
+```bash
+DEBUG=1 ./xlsx2json-api
+```
+
+### Docker
+
+Run the command below and then open [localhost:8000](http://localhost:8000).
+
+```bash
+docker run -p 8000:8000 tsak/xlsx2json-api
+```
