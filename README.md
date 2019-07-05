@@ -1,6 +1,6 @@
 # XLSX 2 JSON API
 
-A light weight API that converts XLSX files into JSON.
+A lightweight API that converts XLSX files into JSON.
 
 It will turn...
 
