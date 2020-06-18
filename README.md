@@ -1,6 +1,6 @@
 # XLSX 2 JSON API
 
-A lightweight API that converts XLSX files into JSON.
+A lightweight API that converts XLSX files into JSON. Try it on [xlsx2json.tsak.net](https://xlsx2json.tsak.net)
 
 It will turn...
 
@@ -127,3 +127,18 @@ Run the command below and then open [localhost:8000](http://localhost:8000).
 ```bash
 docker run -p 8000:8000 tsak/xlsx2json-api
 ```
+
+### As a systemd service
+
+See [xlsx2json-api.service](xlsx2json-api.service) systemd service definition.
+
+To install:
+
+1. `adduser xlsx2json`
+2. copy `xlsx2json-api` binary and `.env` file to `/home/xlsx2json`
+3. place systemd service script in `/etc/systemd/system/`
+4. `sudo systemctl enable xlsx2json-api.service`
+5. `sudo systemctl start xlsx2json-api`
+6. `sudo journalctl -f -u xlsx2json-api`
+
+The last command will show if the service was started.
