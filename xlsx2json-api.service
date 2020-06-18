@@ -1,0 +1,20 @@
+[Unit]
+Description=XLSX2JSON API
+ConditionPathExists=/home/xlsx2json
+After=network.target
+
+[Service]
+Type=simple
+User=xlsx2json
+Group=xlsx2json
+LimitNOFILE=1024
+
+Restart=on-failure
+RestartSec=10
+
+EnvironmentFile=/home/xlsx2json/.env
+WorkingDirectory=/home/xlsx2json
+ExecStart=/home/xlsx2json/xlsx2json-api
+
+[Install]
+WantedBy=multi-user.target
