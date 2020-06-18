@@ -55,6 +55,9 @@ const welcomeTemplate = `<!DOCTYPE html>
     <input type="file" name="file" accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/json">
     <button type="submit">Upload</button>
 </form>
+<p>
+	See <a href="https://github.com/tsak/xlsx2json-api">github.com/tsak/xlsx2json-api</a> for source code and documentation.
+</p>
 </body>
 </html>`
 
