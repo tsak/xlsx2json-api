@@ -1,5 +1,7 @@
 # XLSX 2 JSON API
 
+[![Go Report Card](https://goreportcard.com/badge/github.com/tsak/xlsx2json-api)](https://goreportcard.com/report/github.com/tsak/xlsx2json-api)
+
 A lightweight API that converts XLSX files into JSON. Try it on [xlsx2json.tsak.net](https://xlsx2json.tsak.net)
 
 It will turn...
@@ -68,7 +70,7 @@ Simply send an XLSX file via `POST` and `multipart/form-data` request to `/`. Ex
 
 ### `POST /`
 
-This either accepts an XLSX file or JSON file as part of a `multipart/form-data` request.
+This either accepts an XLSX file or JSON file as part of a `multipart/form-data` request. It expects `name="file"`.
 
 **Sample XLSX upload**
 
@@ -97,8 +99,6 @@ Content-Type: application/json
 
 The format has to match the format that is returned by turning XLSX to JSON.
 
-
-
 ## Environment variables
 
 * `API_HOST` (default `localhost`)
@@ -119,6 +119,11 @@ Build, run the following command and then open [localhost:8000](http://localhost
 ```bash
 DEBUG=1 ./xlsx2json-api
 ```
+
+**Note:** If you run with `DEBUG=1`, it will serve a simple HTML form on [localhost:8000](http://localhost:8000) for
+testing.
+
+![HTML form](debug.png)
 
 ### Docker
 
