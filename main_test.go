@@ -3,7 +3,6 @@ package main
 import (
 	"bytes"
 	"fmt"
-	log "github.com/sirupsen/logrus"
 	"io"
 	"mime/multipart"
 	"net/http"
@@ -12,6 +11,8 @@ import (
 	"os"
 	"path/filepath"
 	"testing"
+
+	log "github.com/sirupsen/logrus"
 )
 
 func TestMain(m *testing.M) {
@@ -47,7 +48,12 @@ func newfileUploadRequest(uri string, params map[string]string, paramName, path 
 	if err != nil {
 		return nil, err
 	}
-	defer file.Close()
+	defer func() {
+		err := file.Close()
+		if err != nil {
+			log.WithError(err).WithField("Path", path).Warn("Unable to close file")
+		}
+	}()
 
 	body := &bytes.Buffer{}
 	writer := multipart.NewWriter(body)
@@ -72,6 +78,9 @@ func newfileUploadRequest(uri string, params map[string]string, paramName, path 
 	}
 
 	req, err := http.NewRequest("POST", uri, body)
+	if err != nil {
+		return nil, err
+	}
 	req.Header.Set("Content-Type", writer.FormDataContentType())
 	return req, err
 }
@@ -113,15 +122,15 @@ func TestReceiveFile(t *testing.T) {
 	testUpload(t, "empty.xlsx", "file", "testfiles/empty.xlsx", expected2, 200, xlsxMimeType)
 
 	// empty CSV file
-	expected3 := `{"http_error_code":500,"http_error":"Internal Server Error","message":"Invalid XLSX file"}` + "\n"
+	expected3 := `{"http_error_code":500,"http_error":"Internal Server Error","message":"invalid XLSX stream"}` + "\n"
 	testUpload(t, "wrong.csv", "file", "testfiles/wrong.csv", expected3, 500, xlsxMimeType)
 
 	// not sending as `file` in the POST body (also captures sending empty body)
-	expected4 := `{"http_error_code":500,"http_error":"Internal Server Error","message":"No file upload found. Please send as param named 'file'."}` + "\n"
+	expected4 := `{"http_error_code":500,"http_error":"Internal Server Error","message":"parameter named 'file' not found in form"}` + "\n"
 	testUpload(t, "wrong param name", "upload", "testfiles/sample.xlsx", expected4, 500, xlsxMimeType)
 
 	// ZIP file renamed to XLSX
-	expected5 := `{"http_error_code":500,"http_error":"Internal Server Error","message":"Invalid XLSX file"}` + "\n"
+	expected5 := `{"http_error_code":500,"http_error":"Internal Server Error","message":"invalid XLSX stream"}` + "\n"
 	testUpload(t, "wrong.xslx", "file", "testfiles/wrong.xslx", expected5, 500, xlsxMimeType)
 
 	// JSON

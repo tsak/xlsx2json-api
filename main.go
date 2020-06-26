@@ -4,15 +4,17 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
-	"github.com/caarlos0/env"
-	"github.com/gorilla/mux"
-	log "github.com/sirupsen/logrus"
-	"github.com/tealeg/xlsx"
+	"fmt"
 	"io"
 	"io/ioutil"
 	"mime/multipart"
 	"net/http"
 	"time"
+
+	"github.com/caarlos0/env"
+	"github.com/gorilla/mux"
+	log "github.com/sirupsen/logrus"
+	"github.com/tealeg/xlsx"
 )
 
 const (
@@ -69,6 +71,8 @@ func main() {
 		log.Error(err)
 	}
 
+	log.ErrorKey = "Error"
+
 	// Set debug logging if DEBUG=true
 	if cfg.Debug {
 		log.SetLevel(log.DebugLevel)
@@ -107,16 +111,26 @@ func addCorsHeader(h http.Handler) http.Handler {
 
 func Welcome(writer http.ResponseWriter, request *http.Request) {
 	request.Header.Get("Content-Type")
-	writer.Write([]byte(welcomeTemplate))
+	_, err := writer.Write([]byte(welcomeTemplate))
+	if err != nil {
+		log.WithError(err).Warn("Unable to write welcome template")
+	}
+}
+
+func callAndLogErr(fn func() error, msg string) {
+	err := fn()
+	if err != nil {
+		log.WithError(err).Warn(msg)
+	}
 }
 
 func ReceiveFile(writer http.ResponseWriter, request *http.Request) {
 	file, fileHeader, err := request.FormFile("file")
 	if err != nil {
-		handleError(writer, errors.New("No file upload found. Please send as param named 'file'."))
+		handleError(writer, errors.New("parameter named 'file' not found in form"))
 		return
 	}
-	defer file.Close()
+	defer callAndLogErr(file.Close, "Unable to close file")
 
 	buf := bytes.NewBuffer(nil)
 	if _, err := io.Copy(buf, file); err != nil {
@@ -149,8 +163,8 @@ func handleJson(writer http.ResponseWriter, payload []byte) {
 	}
 
 	log.WithFields(log.Fields{
-		"name":       workbook.Name,
-		"num_sheets": len(workbook.Sheets),
+		"Name":      workbook.Name,
+		"NumSheets": len(workbook.Sheets),
 	}).Info("JSON -> XLSX")
 
 	file := xlsx.NewFile()
@@ -180,13 +194,16 @@ func handleJson(writer http.ResponseWriter, payload []byte) {
 
 	writer.Header().Set("Content-Disposition", "attachment; filename="+workbook.Name)
 	writer.Header().Add("Content-type", xlsxMimeType)
-	file.Write(writer)
+	err = file.Write(writer)
+	if err != nil {
+		log.WithError(err).Warn("Unable to write")
+	}
 }
 
 func handleXlsx(writer http.ResponseWriter, payload []byte, header *multipart.FileHeader) {
 	xlFile, err := xlsx.OpenBinary(payload)
 	if err != nil {
-		handleError(writer, errors.New("Invalid XLSX file"))
+		handleError(writer, fmt.Errorf("invalid XLSX stream"))
 		return
 	}
 
@@ -214,11 +231,14 @@ func handleXlsx(writer http.ResponseWriter, payload []byte, header *multipart.Fi
 	log.WithField("file", header.Filename).Info("XLSX -> JSON")
 
 	writer.Header().Add("Content-type", jsonMimeType)
-	json.NewEncoder(writer).Encode(workbook)
+	err = json.NewEncoder(writer).Encode(workbook)
+	if err != nil {
+		log.WithError(err).Warn("Unable to encode workbook")
+	}
 }
 
 func handleError(writer http.ResponseWriter, err error) {
-	log.WithField("error", err).Error("Error")
+	log.WithError(err).Error("HTTP error")
 	writer.Header().Add("Content-type", jsonMimeType)
 
 	jsonError := JsonError{
@@ -227,7 +247,10 @@ func handleError(writer http.ResponseWriter, err error) {
 		Message:   err.Error(),
 	}
 
-	jsonErrorPayload, _ := json.Marshal(jsonError)
+	jsonErrorPayload, err2 := json.Marshal(jsonError)
+	if err2 != nil {
+		log.WithError(err2).Warn("Unable to marshal JSON error")
+	}
 
 	http.Error(writer, string(jsonErrorPayload), 500)
 }
