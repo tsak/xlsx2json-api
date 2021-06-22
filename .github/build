@@ -1,17 +1,17 @@
 #!/bin/bash
 
 # Linux x86
-GOOS=linux GOARCH=386 ; go build -o "xlsx2json-api-$GOOS-$GOARCH" .
-GOOS=linux GOARCH=amd64 ; go build -o "xlsx2json-api-$GOOS-$GOARCH" .
+GOOS=linux GOARCH=386 go build -o "xlsx2json-api-$GOOS-$GOARCH" .
+GOOS=linux GOARCH=amd64 go build -o "xlsx2json-api-$GOOS-$GOARCH" .
 
 # Linux arm
-GOOS=linux GOARCH=arm ; go build -o "xlsx2json-api-$GOOS-$GOARCH" .
-GOOS=linux GOARCH=arm64 ; go build -o "xlsx2json-api-$GOOS-$GOARCH" .
+GOOS=linux GOARCH=arm go build -o "xlsx2json-api-$GOOS-$GOARCH" .
+GOOS=linux GOARCH=arm64 go build -o "xlsx2json-api-$GOOS-$GOARCH" .
 
 # Windows
-GOOS=windows GOARCH=386 ; go build -o "xlsx2json-api-$GOOS-$GOARCH.exe" .
-GOOS=windows GOARCH=amd64 ; go build -o "xlsx2json-api-$GOOS-$GOARCH.exe" .
+GOOS=windows GOARCH=386 go build -o "xlsx2json-api-$GOOS-$GOARCH.exe" .
+GOOS=windows GOARCH=amd64 go build -o "xlsx2json-api-$GOOS-$GOARCH.exe" .
 
 # Mac OS
-GOOS=darwin GOARCH=386 ; go build -o "xlsx2json-api-$GOOS-$GOARCH" .
-GOOS=darwin GOARCH=amd64 ; go build -o "xlsx2json-api-$GOOS-$GOARCH" .
+GOOS=darwin GOARCH=386 go build -o "xlsx2json-api-$GOOS-$GOARCH" .
+GOOS=darwin GOARCH=amd64 go build -o "xlsx2json-api-$GOOS-$GOARCH" .
