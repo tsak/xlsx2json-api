@@ -86,7 +86,7 @@ func main() {
 
 	router := mux.NewRouter()
 	if cfg.Debug {
-		router.HandleFunc("/", Welcome).Methods("GET")
+		router.HandleFunc("/", Welcome).Methods("GET", "HEAD")
 	}
 	router.HandleFunc("/", ReceiveFile).Methods("POST").Headers("Content-Type", jsonMimeType)
 	router.HandleFunc("/", ReceiveFile).Methods("POST")
